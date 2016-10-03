@@ -1,0 +1,119 @@
+http://www.tantalon.com/pete/cppopt/main.htm
+
+<naming convention> return_type <calling convention> name(arg ...)
+extern "C" int __stdcall fun(int x,int y)
+
+0. Refernece Books
+Effective C++ 
+More Effective C++
+Exceptional C++
+More Exceptional C++
+Modern C++ design
+
+1. There are 2 naming conventions in C++
+	a. extern "C"
+	b. extern "C++" (default)
+
+2. Use extern "C" naming conventions for functions exposed by a library
+   so that, it can consume from other languages
+
+3. If logic in all overloaded function are same, dont use oveloading.
+   use template
+
+4.You can never add two pointers, can only add constant to pointer
+
+5. prefer pass by & over pass by *
+
+6. avoid pointers (no type safety)
+, use smart pointers or reference type
+
+7. avoid using global namespace, define custom namespace
+
+8. prefer stdcall over cdecl calling convention
+
+9. when creating template class beware of bloating
+
+10. beware of padding (organize data members  sorted based on type)
+
+11. Order of Initialization in Constructor initialization list is in
+    the order of declaration
+
+12. all memory allocated(new) on heap must be reclaimed(delete)
+
+13. malloc -- free, new -- delete, new[] -- delete[]
+
+14. deleting null pointer is safe.(dont check for null)
+
+15. unlike default, compiler always generates a copy constructor
+    compiler generated copy constractor always does a shallow copy
+
+16. always have your own copy constructor. 
+
+17. compiler always generates a default operator=
+
+    	
+18. always have your own operator=. 
+
+19. in operator= always check for self assignment & return *this
+
+20. new operator will not return null when there is not sufficient 
+    memory, instead throws bad_alloc exception.
+
+21. use new(nothrow) when you want to avoid exception handling
+
+22. never call delete on objects created using placement new
+
+23. CAll destructor explicitly when using placement new
+
+24. do not use c style cast (type*), instead use static_cast, 
+	interpret_cast, dynamic_cast
+
+26. avoid reinterpret & down cast
+
+27. dynamic_cast is very expensive wrt performance. it uses rtti
+
+28. never override non virtual function
+
+29. never pass objects by value, causes object slicing instead
+	pass by ref 
+
+30. never call constructor explicitly
+
+31. arrange catch from derived to base.
+
+32. always catch exception by reference
+
+33. Its a good practice to throw an exception from constructor
+
+34. never ever let an exception go out of destructor
+
+35. always make base class destructor virtual.
+
+36 never cast from one base pointer to other base pointer
+	(reinterpret cast)
+
+37. data should not used by more than one thread at any given point of time
+
+http://en.wikibooks.org/wiki/Optimizing_C%2B%2B/Code_optimization/Pipeline
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

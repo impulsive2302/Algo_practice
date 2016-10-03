@@ -1,0 +1,41 @@
+#include <iostream>
+#include<stdint.h>
+
+using namespace std;
+struct node
+{
+    int val;
+    struct node* npx;
+};
+class XOR_Linked_list {
+    node* head;
+    XOR_Linked_list() {
+        head = NULL;
+    }
+    struct node* XOR(struct node *a, struct node *b)
+    {
+        return (struct node*) ((uintptr_t) (a) ^ (uintptr_t) (b));
+    }
+    void add_node(int data)
+    {
+        node* temp = new node();
+        temp->val = data;
+        temp->npx = NULL;
+        if(head == NULL)
+        {
+            temp->npx = XOR(NULL,NULL);
+            head = temp;
+        } else {
+            node * itr_prev = head;
+            node * itr_next = XOR(head->npx,NULL);
+            while(itr_next!=NULL)
+            {
+                itr_next = XOR(itr_prev,itr_next->npxs);
+            }
+        }
+    }
+};
+int main()
+{
+
+}

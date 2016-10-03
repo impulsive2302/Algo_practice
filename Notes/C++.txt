@@ -1,0 +1,309 @@
+
+			
+																					C Vs C++
+			
+1. In C, if a function is called before its declaration, the compiler assumes return type of the function as int.
+	For example, the following program fails in compilation.
+
+	#include <stdio.h>
+	int main(void)
+	{
+		// Note that fun() is not declared 
+		printf("%d\n", fun());
+		return 0;
+	}
+	 
+	char fun()  ->> C Assume it as INT return type.
+	{
+	   return 'G';
+	}
+
+	compiler assumes nothing about parameters. Therefore, the compiler will not be able to perform compile-time checking of argument types and arity when the function is applied to some arguments. This can cause problems. For example, the following program compiled fine in GCC and produced garbage value as output.
+
+	#include <stdio.h>
+	 
+	int main (void)
+	{
+		printf("%d", sum(10, 5));
+		return 0;
+	}
+	int sum (int b, int c, int a)
+	{
+		return (a+b+c);
+	}
+
+2. #include <errno.h>
+	#include <stdio.h>
+	 
+	int main(int argc, char *argv[])
+	{
+		FILE *fp;
+	 
+		fp = fopen(argv[1], "r");
+		if (fp == NULL) {
+			fprintf(stderr, "%s\n", strerror(errno));
+			return errno;
+		}
+	 
+		printf("file exist\n");
+	 
+		fclose(fp);
+	 
+		return 0;
+	}
+the output of program on x86_64 architecture.
+
+[narendra@/media/partition/GFG]$ ./file_existence hello.c
+Segmentation fault (core dumped)
+Why this program crashed, instead it should show appropriate error message. This program will work fine on x86 architecture, but will crash on x86_64 architecture.
+Let us see what was wrong with code. Carefully go through the program, deliberately I haven’t included prototype of “strerror()” function. This function returns
+“pointer to character”, which will print error message which depends on errno passed to this function. Note that x86 architecture is ILP-32 model, means integer,
+pointers and long are 32-bit wide, that’s why program will work correctly on this architecture. But x86_64 is LP-64 model, means long and pointers are 64 bit wide.
+In C language, when we don’t provide prototype of function, the compiler assumes that function returns an integer. In our example, we haven’t included “string.h” header file
+(strerror’s prototype is declared in this file), that’s why compiler assumed that function returns integer. But its return type is pointer to character. In x86_64, pointers are
+64-bit wide and integers are 32-bits wide, that’s why while returning from function, the returned address gets truncated (i.e. 32-bit wide address, which is size of integer on x86_64)
+ which is invalid and when we try to dereference this address, the result is segmentation fault.
+
+3. if const is on left of * then data is constant:
+	Pointer to constant can be declared in following two ways.
+		const int *ptr;
+		or
+		int const *ptr;
+
+4. #include <stdio.h> 
+ 
+	int main(void)
+	{  
+		int const i = 10;    /* i is stored in read only area*/
+		int j = 20;
+	 
+		int const *ptr = &i;        /* pointer to integer constant. Here i 
+									 is of type "const int", and &i is of 
+									 type "const int *".  And p is of type                            
+									"const int", types are matching no issue */
+	 
+		printf("ptr: %d\n", *ptr); 
+	 
+		*ptr = 100;        /* error */
+	 
+		ptr = &j;          /* valid. We call it as up qualification. In 
+							 C/C++, the type of "int *" is allowed to up 
+							 qualify to the type "const int *". The type of 
+							 &j is "int *" and is implicitly up qualified by 
+							 the compiler to "cons tint *" */
+	 
+		printf("ptr: %d\n", *ptr);
+	 
+		return 0;
+	}
+	
+	Down qualification is not allowed in C++ and may cause warnings in C. Following is another example with down qualification.
+
+	#include <stdio.h>
+	 
+	int main(void)
+	{
+		int i = 10;
+		int const j = 20;
+	 
+		/* ptr is pointing an integer object */
+		int *ptr = &i; 
+	 
+		printf("*ptr: %d\n", *ptr); 
+	 
+		/* The below assignment is invalid in C++, results in error 
+		   In C, the compiler *may* throw a warning, but casting is 
+		   implicitly allowed */
+		ptr = &j;
+	 
+		/* In C++, it is called 'down qualification'. The type of expression 
+		   &j is "const int *" and the type of ptr is "int *". The 
+		   assignment "ptr = &j" causes to implicitly remove const-ness 
+		   from the expression &j. C++ being more type restrictive, will not 
+		   allow implicit down qualification. However, C++ allows implicit 
+		   up qualification. The reason being, const qualified identifiers 
+		   are bound to be placed in read-only memory (but not always). If 
+		   C++ allows above kind of assignment (ptr = &j), we can use 'ptr' 
+		   to modify value of j which is in read-only memory. The 
+		   consequences are implementation dependent, the program may fail 
+		   at runtime. So strict type checking helps clean code. */
+	 
+		printf("*ptr: %d\n", *ptr);
+	 
+		return 0;
+	}
+
+5.  const variable in C++ must be initialized but in c it isn’t necessary. 
+6.  We can use one of the C++ specific keywords as variable names. The program won’t compile in C++, but would compiler in C.
+
+	#include <stdio.h>
+	int main(void)
+	{
+		int new = 5;  // new is a keyword in C++, but not in C
+		printf("%d", new);
+	}
+7.	. For example the following program compiles in C, but not in C++. In C++, we get compiler error “invalid conversion from ‘int’ to ‘char*'”. Thanks to Pravasi Meet for adding this point.
+
+	#include <stdio.h>
+	int main()
+	{
+		char *c = 333;
+		printf("c = %u", c);
+		return 0;
+	}
+8. Function calling:
+	Name lookup
+	template arg deduction
+	overload resolution
+	access
+9. C allows a void* pointer to be assigned to any pointer type without a cast, whereas C++ does not;
+
+10. Character literals are treated differently in C and C++. In C character literals like ‘a’, ‘b’, ..etc are treated as integers, while as characters in C++
+
+11. In C, we need to use struct tag whenever we declare a struct variable. In C++, the struct tag is not necessary. For example, let there be a structure for Student.
+In C, we must use ‘struct Student‘ for Student variables. In C++, we can omit struct and use ‘Student‘ only.
+
+12. Types of boolean results are different in C and C++. Thanks to Gaurav Jain for suggesting this point.
+
+	// output = 4 in C (which is size of int)
+	printf("%d", sizeof(1==1)); 
+	 
+	// output = 1 in c++ (which is the size of boolean datatype)
+	cout << sizeof(1==1);
+
+																					REFERENCE:
+1. 	When a variable is declared as reference, it becomes an alternative name for an existing variable. A variable can be declared as reference by putting ‘&’ in the declaration.
+
+	#include<iostream>
+	using namespace std;
+	 
+	int main()
+	{
+	  int x = 10;
+	 
+	  // ref is a reference to x.
+	  int& ref = x;
+	 
+	  // Value of x is now changed to 20
+	  ref = 20;
+	  cout << "x = " << x << endl ;
+	 
+	  // Value of x is now changed to 30
+	  x = 30;
+	  cout << "ref = " << ref << endl ;
+	 
+	  return 0;
+	}
+
+2.	References are less powerful than pointers
+	1) Once a reference is created, it cannot be later made to reference another object; it cannot be reseated. This is often done with pointers.
+	2) References cannot be NULL. Pointers are often made NULL to indicate that they are not pointing to any valid thing.
+	3) A reference must be initialized when declared. There is no such restriction with pointers
+
+3.	Due to the above limitations, references in C++ cannot be used for implementing data structures like Linked List, Tree, etc. In Java, references don’t have above restrictions,
+	and can be used to implement all data structures. References being more powerful in Java, is the main reason Java doesn’t need pointers.
+	
+4.	References are safer and easier to use:
+	1) Safer: Since references must be initialized, wild references like wild pointers are unlikely to exist. It is still possible to have references that don’t refer to a
+		valid location:
+		#include<iostream>
+		using namespace std;
+		 
+		int main()
+		{
+		   int *ptr = NULL;
+		   int &ref = *ptr;
+		   cout << ref;
+		}
+	2)Easier to use: References don’t need dereferencing operator to access the value. They can be used like normal variables.
+
+5.	#include<iostream>
+	using namespace std;
+	 
+	int &fun()
+	{
+		static int x = 10;
+		return x;
+	}
+	int main()
+	{
+		fun() = 30;
+		cout << fun();
+		return 0;
+	}
+	ANS = 30
+	
+	#include<iostream>
+	using namespace std;
+	 
+	int fun(int &x)
+	{
+		return x;
+	}
+	int main()
+	{
+		cout << fun(10);  COMPILATION ERROR
+		return 0;
+	}
+	
+6. references pointing to invalid locatio:
+	1) Reference to value at uninitialized pointer.
+
+	int *ptr;
+	int &ref = *ptr;  // Reference to value at some random memory location
+	
+	2) Reference to a local variable is returned.
+
+	int& fun()
+	{
+	   int a = 10;
+	   return a;
+	}
+	
+7. When do we pass arguments by reference or pointer?
+	1) To modify local variables of the caller function: A reference (or pointer) allows called function to modify a local variable of the caller function.
+	2) For passing large sized arguments: If an argument is large, passing by reference (or pointer) is more efficient because only an address is really passed, not the entire object. For example, let us consider the following Employee
+	class and a function printEmpDetails() that prints Employee details.The problem with above code is: every time printEmpDetails() is called, a new Employee abject is constructed that involves creating a copy of all data members.
+	So a better implementation would be to pass Employee as a reference.
+	3) To avoid Object Slicing: If we pass an object of subclass to a function that expects an object of superclass then the passed object is sliced if it is pass by value.
+	4) 4) To achieve Run Time Polymorphism in a function 
+		We can make a function polymorphic by passing objects as reference (or pointer) to it. For example, in the following program, print() receives a reference to the base
+		class object. print() calls the base class function show() if base class object is passed, and derived class function show() if derived class object is passed.
+		
+			#include<iostream>
+			using namespace std;
+			 
+			class base {
+			public:
+				virtual void show() {  // Note the virtual keyword here
+					cout<<"In base \n";
+				}
+			};
+			 
+			 
+			class derived: public base {
+			public:
+				void show() {
+					cout<<"In derived \n";
+				}
+			};
+			 
+			// Since we pass b as reference, we achieve run time polymorphism here.
+			void print(base &b) {
+				b.show();
+			}
+			 
+			int main(void) {
+				base b;
+				derived d;
+				print(b);
+				print(d);
+				return 0;
+			}
+
+			Output:
+			In base
+			In derived
+
+
+8.	
